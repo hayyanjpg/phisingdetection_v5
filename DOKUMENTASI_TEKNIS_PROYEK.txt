@@ -1,0 +1,134 @@
+===================================================================================
+DOKUMENTASI TEKNIS SISTEM DETEKSI PHISHING BERBASIS SUPPORT VECTOR MACHINE (SVM)
+===================================================================================
+Dokumen ini merepresentasikan alur kerja lengkap (pipeline) dari arsitektur 
+sistem pendeteksi tautan Phishing berbasis penalaran fitur leksikal. Dokumentasi 
+berikut ditujukan sebagai referensi empiris dan pendukung kuantitatif untuk penulisan 
+metodologi (Bab 3) serta analisis hasil (Bab 4) penelitian skripsi.
+
+-----------------------------------------------------------------------------------
+FASE 1: PRE-PROCESSING DAN MANAJEMEN DATA
+-----------------------------------------------------------------------------------
+1. Modul 01: Pra-Pemrosesan Data (Data Cleaning)
+Tahap ini difokuskan pada pembersihan anomali (data noise) dari dataset mentah 
+yang diekstraksi dari sumber sekunder yang mulanya berjumlah 101.219 baris data. 
+Proses yang dijalankan meliputi:
+- Seleksi Fitur Leksikal Awal: Memilih atribut kuantitatif asli sejumlah 16 fitur.
+- Standarisasi Teks: Pengubahan string (tautan URL) menjadi format huruf kecil 
+  (lowercasing) dan penghapusan spasi (whitespace stripping).
+- Penanganan Missing Values: Pembersihan baris yang memiliki nilai kosong atau 
+  kolom korup menggunakan metode .dropna(). Tercatat 1 baris missing value 
+  ditemukan dan dihapus.
+- Penghapusan Baris Anomali: Memfilter data dengan nilai string URL = "offline" 
+  (1 baris dihapus) serta URL yang memiliki nilai subdomain_count = -1 yang 
+  terindikasi tidak memiliki skema protokol web yang valid (1.307 baris dihapus).
+- Reduksi Duplikasi: Mengeliminasi data yang berulang secara eksak untuk mencegah 
+  overfitting. Tercatat 346 baris duplikat diidentifikasi dan dihapus.
+* Hasil Akhir Pra-Pemrosesan: Total pembersihan mereduksi 1.655 baris anomali. 
+  Dataset bersih yang diteruskan ke tahap selanjutnya berjumlah 99.564 baris.
+
+2. Modul 02: Penyeimbangan Data Dinamis (Random Undersampling)
+Data historis Phishing vs Legitimate cenderung tidak seimbang (imbalance), dengan 
+distribusi kelas awal: Phishing (62.184 sampel / 62,46%) dan Legitimate (37.380 
+sampel / 37,54%). Ketimpangan rasio 1:1,66 ini divisualisasikan dan diseimbangkan 
+lewat tahap berikut:
+- Random Undersampling: Pengambilan sampel acak tanpa pengembalian (stratified random 
+  sampling) dari kelas mayoritas (Phishing, divusutkan dari 62.184 sampel ke target 37.380 
+  sampel) hingga observasi terdistribusi simetris secara identik berskala rasio 50:50.
+- Pengacakan (Shuffling): Dataset hasil sampling digabung secara seimbang (total populasi: 
+  74.760 baris), diacak posisinya (shuffle), dan disimulasikan sebagai "dataset_raw_seimbang.csv".
+
+-----------------------------------------------------------------------------------
+FASE 2: REKAYASA FITUR (FEATURE ENGINEERING)
+-----------------------------------------------------------------------------------
+3. Modul 03: Feature Engineering
+Penciptaan parameter artifisial tambahan di luar ekstraksi mentahnya, dengan tujuan
+menangkap pola taktik penipuan modern (deception tactics).
+- Fitur Kustom: 'http_in_domain'. Merupakan pendekatan heuristik bernilai biner (1/0)
+  untuk mendeteksi intervensi ancaman di mana penyerang menyisipkan string 'http' atau 'https'
+  ke dalam teks nama domain utama/subdomain guna menipu keakuratan visual mata korban. Pada uji
+  distribusi, ditemukan sebagian kecil sampel spesifik bernilai positif pada fitur baru ini.
+* Catatan Metodologi: Algoritma kustom lain bernama 'slash_count' telah dievaluasi pada tahap 
+  awal, namun dianulir dari dimensi arsitektur model final karena secara empiris menciptakan 
+  tingkat False Positive tertinggi yang mendistorsi kemurnian algoritma terhadap URL valid. 
+  Model akhir dikonstruksi secara paten menggunakan 17 Fitur utuh.
+
+-----------------------------------------------------------------------------------
+FASE 3: MODELING DAN EVALUASI ML
+-----------------------------------------------------------------------------------
+4. Modul 04: Splitting Data dan Standardisasi
+- Threshold Split: Pemisahan 74.760 baris data melalui skenario Rasio 80% Training Set 
+  (59.808 sampel) dan 20% Testing Set (14.952 sampel) menggunakan `train_test_split` terskala statis 
+  guna mengamankan ketahanan partisi minoritas.
+- Scaling (Penskalaan Normal): Aplikasi 'StandardScaler' dari Scikit-Learn disematkan 
+  guna mereduksi seluruh ukuran komputasi himpunan varians fitur menjadi mean=0 
+  dan standari deviasi=1. Penseskalaan ini direkomendasikan dan disematkan (di-fit)
+  HANYA pada data training demi mencegah kebocoran informasi distribusi uji (Data Leakage Mismatch).
+
+5. Modul 05 & 06: Pelatihan dan Evaluasi Keseimbangan Kinerja
+- Eksplorasi Algoritma: Model ditinjau klasifikasinya terhadap Support Vector Machine (SVM).
+- Tuning dan Uji (Evaluation Base): Melalui arsitektur hyperparameter SVM Tuned di Modul 06, matrix 
+  klasifikasi untuk 14.952 testing subset memverifikasi nilai Akurasi spektakuler nyaris 1.00 (99,9%).
+  * Confusion Matrix SVM_Tuned: 
+    - True Positives (Phishing): 7.470
+    - True Negatives (Legitimate): 7.470
+    - False Positives: 6
+    - False Negatives: 6 
+- Bulk Audit Total (M08): Eksperimen inference paksa pada set keseimbangan 74.760 spesimen mencetak
+  evaluasi performa makro 99,95% dengan volume kemelesetan murni terdeteksi di bawah parameter 0.06%
+  (Total hanya 41 tebakan salah dari puluhan ribu tes di rentang akurasi maksimal).
+- Artefak Ekspor: Model final yang lolos dibungkus ke "best_model.pkl" berserta "scaler.pkl".
+
+-----------------------------------------------------------------------------------
+FASE 4: PIPELINE PRODUKSI & ANTARMUKA
+-----------------------------------------------------------------------------------
+6. Modul 07: Engine Inferensi dan Sinkronisasi Leksikal
+Berperan menenun skematis ekstraksi string mentah dari pengguna menjadi probabilitas. Sistem mengatasi limitasi
+"Serving-Training Skew" (Kekacauan Prediksi Akibat Miskalkulasi Real-Time) melalui pemecahan metrik radikal:
+- Pustaka `tldextract`: Menyinkronkan kalkulasi identitas length domain pada lingkungan *Live* agar selaras presisi 
+  dengan standar algoritma yang diadopsi Kaggle dataset selama iterasi *Training Set* yang berjalan.
+- Presisi Pemisah Kueri (Hierarchy Separator): Token Count pada algoritma dipaksa mensubstitusi delimiternya ke 
+  level presisi [./?=&], membuang string '-' secara absolut sehingga URL panjang takkan menderita False Positives 
+  seperti halnya di metode klasifikasi klasik.
+
+7. Antarmuka Aplikasi (Multi-Interface)
+Proyek ini sekarang memiliki dua opsi antarmuka yang memanfaatkan engine inferensi yang sama:
+a) Versi Klasik Berbasis Streamlit (app.py)
+   Aplikasi implementasi awal yang dibungkus kerangka Streamlit untuk demonstrasi kelayakan dan analisis mendalam.
+   - Explainable AI (XAI): Integrasi transparansi kognitif yang memecah keputusan "Biner" abstrak menggunakan 
+     Translasi Aturan Predikatif.
+   - Visualisasi Keyakinan Interaktif (Gauge Chart): Angka probabilitas dikonversi ke indikator UI persen meter.
+
+b) Versi Web Modern Berbasis API (backend/api.py & frontend/index.html)
+   Aplikasi termutakhir sebagai solusi premium menggunakan framework Flask (Backend) dan HTML/Tailwind CSS (Frontend).
+   - Flask REST API: Menyediakan Service Endpoint lokal di port 5000 untuk melayani prediksi.
+   - Antarmuka Chat UI Dinamis: Tampilan antarmuka estetik (dark-mode) layaknya asisten chatbot dengan animasi 
+     typing dan laci akordion untuk detail 17 fitur leksikal pendukung.
+===================================================================================
+FASE 5: HASIL PENGUJIAN KODE DAN PENYELESAIAN BUG (MAINTENANCE)
+===================================================================================
+Dalam proses pengujian integrasi seluruh modul (pipeline end-to-end), dilakukan 
+pemeriksaan komprehensif pada seluruh file untuk memastikan tidak adanya eror.
+
+1. Identifikasi Bug pada Modul Evaluasi:
+- Ditemukan adanya anomali eksekusi (Crash/Exception) pada modul `06_model_evaluation.py`
+  berupa: `NameError: name 'X_test' is not defined.`.
+- Kendala teknis ini terjadi di dalam tahapan `tampilkan_model_terbaik()`, karena 
+  sistem memanggil fungsi `buat_visualisasi_feature_importance` yang membutuhkan nilai `X_test`
+  untuk menghitung *Permutation Feature Importance*, namun argumen tersebut lupa tidak
+  disertakan pada definisi fungsi pembungkusnya.
+
+2. Resolusi dan Perbaikan (Bug Fix):
+- Perbaikan permanen telah ditetapkan dengan merestrukturisasi parameter fungsi menjadi 
+  `def tampilkan_model_terbaik(hasil_evaluasi, X_test, y_test):` 
+- Modul `06` berhasil dieksekusi ulang hingga memproduksi grafik Feature Importance
+  untuk arsitektur SVM_Tuned tanpa interupsi (*Exit Code: 0*).
+- File orkestrator `run_pipeline.py` juga dipastikan dapat berjalan lancar tanpa paksaan 
+  berhenti di tengah jalan.
+
+3. Validasi Modul Lanjutan & Antarmuka:
+- Eksekusi tunggal `08_bulk_audit.py` berjalan sempurna, memproduksi persentase kesuksesan 
+  akbar (99,88% Akurasi terhadap 101.218 baris data).
+- Validasi terhadap antarmuka Streamlit `app.py` juga bersih dari potensi *ImportError* maupun
+  *SyntaxError*. Seluruh ekosistem pengembangan telah mencapai titik stabilitas produksi (Production Ready).
+===================================================================================

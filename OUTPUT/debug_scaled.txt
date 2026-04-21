@@ -1,0 +1,4 @@
+URL: http://login-page-105531.square.site
+Features: {'url_length': 36.0, 'has_ip_address': 0.0, 'dot_count': 2.0, 'https_flag': 0.0, 'url_entropy': 4.350209029099897, 'token_count': 5.0, 'subdomain_count': 1.0, 'query_param_count': 1.0, 'tld_length': 4.0, 'path_length': 0.0, 'has_hyphen_in_domain': 1.0, 'number_of_digits': 6.0, 'tld_popularity': 0.0, 'suspicious_file_extension': 0.0, 'domain_name_length': 6.0, 'percentage_numeric_chars': 16.666666666666664, 'http_in_domain': 0.0}
+Scaled: [0.22564779998604453, -0.805471447777076, -0.9492279319266009, -1.0581344084872788, 1.3945444536441705, -0.9861748891234717, -0.8420213179318691, -0.044841690408969154, -0.2177114742612954, -0.5503723623662132, 4.395693379368384, -0.09605966339422728, -0.8234770659310907, -0.3689539901460949, -0.19744098400345206, -0.12640736175167383, -0.0057828592169448835]
+Prediksi: 0

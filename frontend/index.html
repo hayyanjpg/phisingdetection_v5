@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="id" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Anti-Phish AI Chat</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        
+        /* Animasi Typing / Thinking DOTS */
+        .typing-indicator span {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            background-color: #94a3b8; /* slate-400 */
+            border-radius: 50%;
+            margin-right: 4px;
+            animation: bounce 1.4s infinite ease-in-out both;
+        }
+        .typing-indicator span:nth-child(1) { animation-delay: -0.32s; }
+        .typing-indicator span:nth-child(2) { animation-delay: -0.16s; }
+        @keyframes bounce {
+            0%, 80%, 100% { transform: scale(0); }
+            40% { transform: scale(1); }
+        }
+        
+        /* Scrollbar kustom untuk tema gelap */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #475569; }
+    </style>
+</head>
+<body class="bg-slate-900 text-slate-200 h-screen flex flex-col items-center">
+
+    <!-- HEADER MINIMALIS -->
+    <header class="w-full bg-slate-900 border-b border-slate-800 p-4 sticky top-0 z-10">
+        <div class="max-w-3xl mx-auto flex items-center justify-between">
+            <div class="flex items-center space-x-2">
+                <i class="fa-solid fa-shield-halved text-blue-500 text-xl"></i>
+                <h1 class="text-lg font-semibold tracking-wide text-slate-100">Anti-Phish<span class="text-blue-500">.AI</span></h1>
+            </div>
+            <div class="text-xs text-slate-500 border border-slate-700 rounded-full px-3 py-1">Model: SVM Leksikal</div>
+        </div>
+    </header>
+
+    <!-- AREA CHAT (Scrollable) -->
+    <main id="chat-container" class="flex-1 w-full max-w-3xl mx-auto p-4 overflow-y-auto space-y-6 pb-40">
+        
+        <!-- Pesan Pembuka dari Bot -->
+        <div class="flex items-start space-x-4">
+            <div class="flex-shrink-0 w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center">
+                <i class="fa-solid fa-robot text-white text-sm"></i>
+            </div>
+            <div class="flex-1 py-1">
+                <p class="text-slate-300">Halo! Saya adalah Anti-Phish AI. Silakan masukkan tautan (URL) yang mencurigakan, dan saya akan menganalisisnya secara real-time berdasarkan berbagai parameter leksikal.</p>
+            </div>
+        </div>
+        
+    </main>
+
+    <!-- AREA INPUT (Sticky Bottom) -->
+    <div class="absolute bottom-0 w-full bg-gradient-to-t from-slate-900 via-slate-900 to-transparent pt-10 pb-6 px-4">
+        <div class="max-w-3xl mx-auto relative relative">
+            <input 
+                type="text" 
+                id="url-input" 
+                placeholder="Tempelkan URL di sini (contoh: https://secure-login.paypal.com)..." 
+                class="w-full bg-slate-800 border border-slate-700 text-slate-100 rounded-2xl py-4 pl-6 pr-14 shadow-lg focus:outline-none focus:border-slate-500 focus:ring-1 focus:ring-slate-500 transition"
+                autocomplete="off"
+            >
+            <button 
+                id="send-btn" 
+                class="absolute right-3 top-1/2 transform -translate-y-1/2 p-2 bg-slate-700 hover:bg-slate-600 rounded-xl text-slate-300 transition h-10 w-10 flex items-center justify-center"
+            >
+                <i class="fa-solid fa-paper-plane"></i>
+            </button>
+        </div>
+        <p class="text-center text-[11px] text-slate-500 mt-3 max-w-3xl mx-auto">AI dapat membuat kesalahan analisis pada domain unik. Selalu perhatikan instruksi keamanan independen.</p>
+    </div>
+
+    <!-- SCRIPT JAVASCRIPT LOGIC -->
+    <script>
+        const inputField = document.getElementById('url-input');
+        const sendBtn = document.getElementById('send-btn');
+        const chatContainer = document.getElementById('chat-container');
+
+        // Fungsi auto-scroll ke bawah history
+        function scrollToBottom() {
+            chatContainer.scrollTo({
+                top: chatContainer.scrollHeight,
+                behavior: 'smooth'
+            });
+        }
+
+        // Event Listeners (Enter / Click)
+        inputField.addEventListener('keypress', function (e) {
+            if (e.key === 'Enter' && inputField.value.trim() !== '') {
+                prosesAnalisis();
+            }
+        });
+        
+        sendBtn.addEventListener('click', function() {
+            if (inputField.value.trim() !== '') {
+                prosesAnalisis();
+            }
+        });
+
+        async function prosesAnalisis() {
+            const rawUrl = inputField.value.trim();
+            inputField.value = ''; // Kosongkan input
+            
+            // 1. Tampilkan Chat User
+            tambahkanPesanUser(rawUrl);
+            
+            // 2. Munculkan Animasi Typing
+            const typingElementId = tambahkanAnimasiTyping();
+            
+            try {
+                // 3. Panggil API Backend Flask (Deteksi Lokasi Otomatis)
+                const isLocal = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1";
+                // GANTI URL DI BAWAH INI SETELAH ANDA MENDAPATKAN URL DARI RENDER.COM!
+                const baseUrl = isLocal ? 'http://127.0.0.1:5000' : 'https://NAMA-APP-ANDA.onrender.com'; 
+                
+                const response = await fetch(`${baseUrl}/predict`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ url: rawUrl })
+                });
+                
+                const data = await response.json();
+                
+                // Hapus Animasi Typing
+                hapusElemen(typingElementId);
+                
+                // 4. Render Hasil dari Bot
+                if(data.status === 'success'){
+                    tambahkanPesanBotResult(data);
+                } else {
+                    tambahkanPesanError(data.message || "Terjadi kesalahan server saat memproses URL.");
+                }
+                
+            } catch (error) {
+                hapusElemen(typingElementId);
+                tambahkanPesanError("Gagal menghubungi Backend. Pastikan aplikasi Flask sedang berjalan di http://127.0.0.1:5000");
+                console.error("Fetch Error:", error);
+            }
+        }
+
+        // ==========================================================
+        // FUNGSI RENDER KOMPONEN UI
+        // ==========================================================
+
+        function tambahkanPesanUser(pesan) {
+            const id = 'user-' + Date.now();
+            const elm = document.createElement('div');
+            elm.id = id;
+            elm.className = 'flex items-start flex-row-reverse space-x-reverse space-x-4 mb-6';
+            elm.innerHTML = `
+                <div class="flex-shrink-0 w-8 h-8 rounded-full bg-slate-700 border border-slate-600 flex items-center justify-center">
+                    <i class="fa-solid fa-user text-slate-300 text-sm"></i>
+                </div>
+                <div class="py-1 px-4 bg-slate-800 border border-slate-700 rounded-2xl rounded-tr-none text-slate-200 shadow-sm max-w-[85%] break-all">
+                    ${pesan}
+                </div>
+            `;
+            chatContainer.appendChild(elm);
+            scrollToBottom();
+        }
+
+        function tambahkanAnimasiTyping() {
+            const id = 'typing-' + Date.now();
+            const elm = document.createElement('div');
+            elm.id = id;
+            elm.className = 'flex items-start space-x-4 mb-6';
+            elm.innerHTML = `
+                <div class="flex-shrink-0 w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center shadow">
+                    <i class="fa-solid fa-robot text-white text-sm"></i>
+                </div>
+                <div class="py-2 px-4 bg-transparent text-slate-300 flex items-center h-8">
+                    <div class="typing-indicator flex items-center mt-1">
+                        <span></span><span></span><span></span>
+                    </div>
+                </div>
+            `;
+            chatContainer.appendChild(elm);
+            scrollToBottom();
+            return id;
+        }
+
+        function hapusElemen(id) {
+            const el = document.getElementById(id);
+            if (el) el.remove();
+        }
+
+        function tambahkanPesanError(errorMsg) {
+            const elm = document.createElement('div');
+            elm.className = 'flex items-start space-x-4 mb-6';
+            elm.innerHTML = `
+                <div class="flex-shrink-0 w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center">
+                    <i class="fa-solid fa-robot text-white text-sm"></i>
+                </div>
+                <div class="flex-1 py-1">
+                    <div class="bg-red-900/40 border-l-4 border-red-500 text-red-400 p-3 rounded-r text-sm">
+                        <i class="fa-solid fa-circle-exclamation mr-1"></i> ${errorMsg}
+                    </div>
+                </div>
+            `;
+            chatContainer.appendChild(elm);
+            scrollToBottom();
+        }
+
+        function tambahkanPesanBotResult(data) {
+            const isPhishing = data.prediction === "Phishing";
+            const confidence = data.confidence.toFixed(2);
+            
+            // Konfigurasi CSS berdasarkan status
+            const themeColor = isPhishing ? "red" : "emerald";
+            const icon = isPhishing ? "fa-triangle-exclamation" : "fa-shield-check";
+            const title = isPhishing ? "SANGAT BERBAHAYA!" : "AMAN & SAH (LEGITIMATE)";
+            const msg = isPhishing ? 
+                `Saya sangat yakin (${confidence}%) bahwa URL ini merupakan situs Phishing. Jangan berikan kredensial apa pun!` : 
+                `Saya yakin (${confidence}%) bahwa URL ini aman dikunjungi. Tidak ditemukan anomali leksikal yang kritis.`;
+
+            // Membuat grid elemen untuk 17 fitur
+            let featureHtml = '';
+            for (const [key, value] of Object.entries(data.features)) {
+                featureHtml += `
+                    <div class="bg-slate-800 rounded p-2 flex justify-between items-center border border-slate-700/50">
+                        <span class="text-slate-400 font-mono text-[10px] break-all">${key}</span>
+                        <span class="text-slate-200 font-mono text-[11px] font-semibold">${value % 1 !== 0 ? Number(value).toFixed(2) : value}</span>
+                    </div>
+                `;
+            }
+
+            const elm = document.createElement('div');
+            elm.className = 'flex items-start space-x-4 mb-6';
+            elm.innerHTML = `
+                <div class="flex-shrink-0 w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center shadow mt-1">
+                    <i class="fa-solid fa-robot text-white text-sm"></i>
+                </div>
+                <div class="flex-1 space-y-3">
+                    
+                    <!-- Alert Banner -->
+                    <div class="bg-${themeColor}-900/20 border border-${themeColor}-500/30 rounded-xl p-4 shadow-sm w-full">
+                        <div class="flex items-center space-x-2 text-${themeColor}-400 font-bold mb-2">
+                            <i class="fa-solid ${icon}"></i>
+                            <span>${title}</span>
+                        </div>
+                        <p class="text-slate-300 text-sm leading-relaxed">${msg}</p>
+                        
+                        <!-- Confidence Bar -->
+                        <div class="mt-4">
+                            <div class="flex justify-between text-xs mb-1">
+                                <span class="text-slate-400">Confidence Score</span>
+                                <span class="text-${themeColor}-400 font-bold">${confidence}%</span>
+                            </div>
+                            <div class="w-full bg-slate-900 rounded-full h-1.5 overflow-hidden">
+                                <div class="bg-${themeColor}-500 h-1.5 rounded-full" style="width: ${confidence}%"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Accordion Info Detail -->
+                    <details class="group bg-slate-800/50 rounded-lg border border-slate-700 overflow-hidden w-full transition-all">
+                        <summary class="cursor-pointer text-sm py-3 px-4 flex justify-between items-center text-slate-300 hover:bg-slate-800 transition">
+                            <span class="font-medium"><i class="fa-solid fa-code-branch mr-2"></i>Data Ekstraksi 17 Fitur Leksikal</span>
+                            <span class="transition duration-300 group-open:rotate-180">
+                                <i class="fa-solid fa-chevron-down text-xs text-slate-500"></i>
+                            </span>
+                        </summary>
+                        <div class="p-4 border-t border-slate-700 bg-slate-900/30">
+                            <div class="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                                ${featureHtml}
+                            </div>
+                        </div>
+                    </details>
+                </div>
+            `;
+            
+            chatContainer.appendChild(elm);
+            scrollToBottom();
+        }
+    </script>
+</body>
+</html>
