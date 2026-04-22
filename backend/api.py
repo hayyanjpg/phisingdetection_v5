@@ -1,22 +1,21 @@
 import sys
 import os
 
-# 1. Pastikan python dapat menemukan 07_inference.py di folder root proyek (satu tingkat di atas backend/)
+# 1. Konfigurasi Path Sederhana
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-ROOT_DIR = os.path.abspath(os.path.join(BASE_DIR, '..'))
-
-if ROOT_DIR not in sys.path:
-    sys.path.append(ROOT_DIR)
+if BASE_DIR not in sys.path:
+    sys.path.append(BASE_DIR)
 
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 
-# 2. Mengimpor fungsi prediksi yang sudah matang dan teruji dari 07_inference.py
+# 2. Mengimpor fungsi prediksi dari 07_inference.py (berada di folder yang sama)
 try:
     inference_module = __import__("07_inference")
     predict_url = inference_module.predict_url
+    print("  [v] Berhasil memuat modul 07_inference")
 except ImportError as e:
-    print(f"CRITICAL ERROR: Gagal memuat modul 07_inference dari root. Pesan: {e}")
+    print(f"CRITICAL ERROR: Gagal memuat modul 07_inference. Pesan: {e}")
     predict_url = None
 
 # 3. Inisialisasi Flask Apps

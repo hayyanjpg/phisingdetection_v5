@@ -22,13 +22,26 @@ import pandas as pd
 from urllib.parse import urlparse
 import tldextract
 
-# --- Konfigurasi Path ---
+# --- Konfigurasi Path (Adaptif untuk Lokal maupun Cloud) ---
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 OUTPUT_DIR = os.path.join(BASE_DIR, "OUTPUT")
 
-SCALER_PATH = os.path.join(OUTPUT_DIR, "scaler.pkl")
-MODEL_PATH = os.path.join(OUTPUT_DIR, "best_model.pkl")
-FEAT_NAMES_PATH = os.path.join(OUTPUT_DIR, "feature_names.pkl")
+def dapatkan_path_artefak(nama_file):
+    # Cek di folder OUTPUT dulu (lokal)
+    path_output = os.path.join(OUTPUT_DIR, nama_file)
+    if os.path.exists(path_output):
+        return path_output
+    # Jika tidak ada, cek di direktori utama (Hugging Face/Cloud)
+    path_root = os.path.join(BASE_DIR, nama_file)
+    return path_root
+
+SCALER_PATH = dapatkan_path_artefak("scaler.pkl")
+FEAT_NAMES_PATH = dapatkan_path_artefak("feature_names.pkl")
+
+# Khusus model, cek best_model.pkl atau svm_tuned.pkl
+MODEL_PATH = dapatkan_path_artefak("best_model.pkl")
+if not os.path.exists(MODEL_PATH):
+    MODEL_PATH = dapatkan_path_artefak("svm_tuned.pkl")
 
 # Daftar TLD (Top-Level Domain) populer (sebagai proksi tld_popularity)
 POPULAR_TLDS = ['.com', '.org', '.net', '.edu', '.gov', '.uk', '.io', '.co', '.us', '.info']
@@ -233,8 +246,9 @@ def predict_url(url_string):
         prediksi = model.predict(X_scaled)[0]           # 0 (Phishing) atau 1 (Legitimate)
         probabilitas = model.predict_proba(X_scaled)[0] # Confidence [prob_0, prob_1]
 
-        # DEBUGGING: Tulis X_scaled ke file agar bisa divalidasi
-        with open(os.path.join(OUTPUT_DIR, 'debug_scaled.txt'), 'w') as f:
+        # 6. DEBUGGING: Tulis ke file (gunakan BASE_DIR jika OUTPUT tidak ada)
+        debug_dir = OUTPUT_DIR if os.path.exists(OUTPUT_DIR) else BASE_DIR
+        with open(os.path.join(debug_dir, 'debug_scaled.txt'), 'w') as f:
             f.write(f"URL: {url_string}\nFeatures: {df_features.iloc[0].to_dict()}\nScaled: {list(X_scaled[0])}\nPrediksi: {prediksi}\n")
 
         # 6. Susun Output
