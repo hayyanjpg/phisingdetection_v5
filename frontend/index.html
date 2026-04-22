@@ -123,7 +123,7 @@
                 // 3. Panggil API Backend Flask (Deteksi Lokasi Otomatis)
                 const isLocal = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1";
                 // GANTI URL DI BAWAH INI SETELAH ANDA MENDAPATKAN URL DARI RENDER.COM!
-                const baseUrl = isLocal ? 'http://127.0.0.1:5000' : 'https://NAMA-APP-ANDA.onrender.com'; 
+                const baseUrl = isLocal ? 'http://127.0.0.1:5000' : 'https://hayyann-anti-phisingv5-api.hf.space'; 
                 
                 const response = await fetch(`${baseUrl}/predict`, {
                     method: 'POST',
