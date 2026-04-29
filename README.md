@@ -57,7 +57,7 @@ Aplikasi tingkat produksi dengan antarmuka Chatbot estetik (Dark Mode) dan detai
 * Frontend: `frontend/index.html` (Deployed at Vercel)
 * Backend: `backend/app.py` atau `app.py` (Deployed at Hugging Face Spaces)
 
-**[gambar1.png]**
+![Antarmuka Web](gambar1.png)
 
 ##  Panduan Instalasi dan Penggunaan (Local Development)
 
