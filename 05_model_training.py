@@ -1,19 +1,3 @@
-# ==============================================================================
-# MODUL 05: PELATIHAN & HYPERPARAMETER TUNING (Bab 3.8 - 3.9)
-# ==============================================================================
-# Deskripsi:
-#   Modul ini khusus untuk melakukan pelatihan model dan hyperparameter tuning.
-#   Proses yang dilakukan:
-#     1. Pelatihan Baseline: Melatih 3 algoritma (LR, RF, SVM) menggunakan
-#        parameter default pada seluruh data latih.
-#     2. Menyimpan model baseline ke dalam file .pkl di folder OUTPUT/.
-#     3. Hyperparameter Tuning: Melakukan pencarian parameter terbaik dengan
-#        GridSearchCV (dan 5-Fold CV) pada seluruh data latih.
-#     4. Menyimpan model terbaik (tuned) ke dalam file .pkl di folder OUTPUT/.
-#   
-#   Dengan memisahkan tahap ini dari evaluasi, kita dapat menyimpan semua 
-#   model (sebelum dan sesudah tuning) untuk dibandingkan nanti.
-# ==============================================================================
 
 import pandas as pd
 import joblib
@@ -24,19 +8,17 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.svm import SVC
 from sklearn.model_selection import GridSearchCV
 
-# --- Konfigurasi Path ---
+# Konfigurasi Path 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 OUTPUT_DIR = os.path.join(BASE_DIR, "OUTPUT")
 
-# --- Konfigurasi Parameter ---
+# Konfigurasi Parameter 
 CV_FOLDS = 5            # Jumlah fold untuk Cross-Validation saat tuning
 RANDOM_STATE = 42       # Seed untuk reproduksibilitas
-N_JOBS = 1             # Gunakan 1 core CPU agar tidak OOM di memori
+N_JOBS = 1             # Gunakan 1 core CPU agar memori ga cepet penuh 
 
 
-# ==============================================================================
-# BAGIAN 1: DEFINISI MODEL & PARAMETER GRID
-# ==============================================================================
+
 
 def definisi_model_baseline():
     """
@@ -131,9 +113,6 @@ def latih_dan_simpan_baseline(X_train, y_train):
         print(f"  [v] Disimpan ke: {path_simpan}")
 
 
-# ==============================================================================
-# BAGIAN 3: HYPERPARAMETER TUNING (Grid Search)
-# ==============================================================================
 
 def latih_tuning_dan_simpan(X_train, y_train):
     """
@@ -196,7 +175,7 @@ def jalankan_modul_training(X_train, y_train):
     print(f"    Waktu total proses: {durasi_total/60:.2f} menit.\n")
 
 
-# --- Eksekusi Langsung ---
+# Eksekusi Langsung 
 if __name__ == "__main__":
     import importlib.util
 
