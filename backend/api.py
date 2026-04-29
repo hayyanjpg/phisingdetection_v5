@@ -61,7 +61,7 @@ def health_check():
 
 if __name__ == '__main__':
     print("="*60)
-    print("🚀 MEMULAI SERVER BACKEND APi!")
+    print(" MEMULAI SERVER BACKEND APi!")
     print("Endpoint tersedia: POST http://127.0.0.1:5000/predict")
     print("="*60)
     app.run(debug=True, port=5000)
