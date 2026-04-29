@@ -1,23 +1,3 @@
-# ==============================================================================
-# MODUL 04: SPLIT DATA & SCALING (Bab 3.7 - 3.8)
-# ==============================================================================
-# Deskripsi:
-#   Modul ini bertanggung jawab untuk membagi dataset menjadi data latih
-#   (training) dan data uji (testing), serta melakukan standardisasi fitur.
-#   Proses yang dilakukan:
-#     1. Pemisahan fitur prediktor (X) dan label target (y).
-#        Kolom 'URL' TIDAK diikutsertakan ke dalam fitur prediktor.
-#     2. Pembagian data menggunakan Stratified Sampling dengan rasio 80:20.
-#        Stratified Sampling memastikan proporsi kelas tetap terjaga
-#        pada data latih maupun data uji.
-#     3. Standardisasi fitur menggunakan StandardScaler.
-#        PENTING: Scaler di-fit HANYA pada data latih (X_train), kemudian
-#        di-transform pada data latih DAN data uji. Hal ini untuk menghindari
-#        data leakage (kebocoran informasi dari data uji ke proses pelatihan).
-#     4. Penyimpanan objek scaler dan daftar nama fitur ke folder OUTPUT/
-#        dalam format pickle (.pkl) agar dapat digunakan kembali saat
-#        inferensi pada aplikasi web.
-# ==============================================================================
 
 import pandas as pd
 import numpy as np
@@ -29,11 +9,11 @@ import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 
-# --- Konfigurasi Path ---
+# Konfigurasi Path 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 OUTPUT_DIR = os.path.join(BASE_DIR, "OUTPUT")
 
-# --- Konfigurasi Parameter ---
+# Konfigurasi Parameter 
 TEST_SIZE = 0.20        # Rasio data uji: 20%
 RANDOM_STATE = 42       # Seed untuk reproduksibilitas hasil
 
@@ -60,7 +40,7 @@ def pisahkan_fitur_dan_label(df):
     print("TAHAP 4: SPLIT DATA & SCALING (Bab 3.7 - 3.8)")
     print("=" * 70)
 
-    # Kolom yang TIDAK digunakan sebagai fitur prediktor
+    # Kolom yang ga digunakan sebagai fitur prediktor
     kolom_eksklusi = ['URL', 'ClassLabel']
 
     # Ambil seluruh kolom kecuali URL dan ClassLabel sebagai fitur prediktor
@@ -158,7 +138,7 @@ def standardisasi_fitur(X_train, X_test, feature_names):
 
     scaler = StandardScaler()
 
-    # Fit scaler HANYA pada data latih
+    # Fit scaler hanya pada data latih
     # (menghitung mean dan standard deviation dari data latih)
     scaler.fit(X_train)
     print("  [v] Scaler di-fit pada data latih (X_train).")
@@ -350,9 +330,7 @@ def jalankan_split_scaling(df):
     return X_train_scaled, X_test_scaled, y_train, y_test, feature_names
 
 
-# --- Eksekusi Langsung ---
-# Blok ini memungkinkan pengujian modul secara independen.
-# Menjalankan Tahap 1, 2, 3 terlebih dahulu, kemudian Tahap 4.
+
 if __name__ == "__main__":
     import importlib.util
 
