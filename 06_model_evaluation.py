@@ -1,19 +1,3 @@
-# ==============================================================================
-# MODUL 06: EVALUASI MODEL (Bab 3.10)
-# ==============================================================================
-# Deskripsi:
-#   Modul ini khusus untuk membandingkan dan mengevaluasi model yang telah
-#   dilatih sebelumnya di Modul 05. 
-#   Proses yang dilakukan:
-#     1. Memuat seluruh model (baseline dan tuned) untuk ketiga algoritma:
-#        Logistic Regression (LR), Random Forest (RF), dan SVM.
-#     2. Melakukan prediksi pada data uji (X_test) yang tersimpan di OUTPUT.
-#     3. Menghitung metrik performa: Accuracy, Precision, Recall, F1-Score.
-#     4. Menampilkan tabel perbandingan yang komprehensif antara model
-#        sebelum tuning (baseline) dan sesudah tuning.
-#     5. Menentukan model paling stabil/terbaik secara keseluruhan dan 
-#        mencetak Classification Report & Confusion Matrix-nya.
-# ==============================================================================
 
 import pandas as pd
 import joblib
@@ -27,7 +11,7 @@ from sklearn.metrics import (accuracy_score, precision_score, recall_score,
                              f1_score, classification_report, confusion_matrix)
 from sklearn.inspection import permutation_importance
 
-# --- Konfigurasi Path ---
+# Konfigurasi Path 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 OUTPUT_DIR = os.path.join(BASE_DIR, "OUTPUT")
 
@@ -303,7 +287,7 @@ def buat_visualisasi_komparasi_error(hasil_evaluasi):
     x1 = np.arange(len(kunci_algo))
     width = 0.35
     
-    # === Subplot 1: TP vs TN ===
+    # Subplot 1: TP vs TN 
     ax1.bar(x1 - width/2, skor_success[0], width, label='True Positive (TP)', color='cornflowerblue')
     ax1.bar(x1 + width/2, skor_success[1], width, label='True Negative (TN)', color='lightgreen')
     
@@ -314,7 +298,7 @@ def buat_visualisasi_komparasi_error(hasil_evaluasi):
     ax1.legend()
     ax1.grid(axis='y', linestyle='--', alpha=0.5)
     
-    # === Subplot 2: FP vs FN ===
+    # Subplot 2: FP vs FN 
     ax2.bar(x1 - width/2, skor_error[0], width, label='False Positive (FP)', color='salmon')
     ax2.bar(x1 + width/2, skor_error[1], width, label='False Negative (FN)', color='red')
     
