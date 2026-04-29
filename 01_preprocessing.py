@@ -1,18 +1,4 @@
-# ==============================================================================
-# MODUL 01: PRA-PEMROSESAN DATA (Bab 3.4)
-# ==============================================================================
-# Deskripsi:
-#   Modul ini bertanggung jawab untuk memuat dataset mentah dan melakukan
-#   serangkaian proses pembersihan data (data cleaning) sebelum data siap
-#   digunakan pada tahap-tahap selanjutnya. Proses meliputi:
-#     1. Pemuatan dataset dari file CSV.
-#     2. Seleksi fitur leksikal yang relevan.
-#     3. Pembersihan data: konversi URL ke lowercase, penghapusan whitespace,
-#        penanganan missing values, penghapusan data duplikat, dan
-#        penghapusan baris anomali.
-#     4. Konversi label kelas (ClassLabel) menjadi tipe data Integer.
-#     5. Menampilkan statistik deskriptif sebelum dan sesudah proses cleaning.
-# ==============================================================================
+
 
 import pandas as pd
 import os
