@@ -1,37 +1,16 @@
-# ==============================================================================
-# MODUL 03: FEATURE ENGINEERING (Bab 3.6)
-# ==============================================================================
-# Deskripsi:
-#   Modul ini bertanggung jawab untuk menambahkan fitur-fitur leksikal kustom
-#   pada dataset yang telah melalui tahap penyeimbangan data. Proses meliputi:
-#     2. Penambahan fitur 'http_in_domain': deteksi binary (0/1) apakah
-#        string 'http' atau 'https' muncul di dalam nama domain URL
-#        (bukan bagian skema protokol utama).
-#     3. Verifikasi bahwa total fitur prediktor akhir berjumlah 18.
-#     4. Pembuatan visualisasi distribusi fitur kustom dalam bentuk
-#        Grouped Bar Chart dan menyimpannya ke folder OUTPUT/.
-#
-#   Tujuan penambahan fitur kustom:
-#     - slash_count: URL phishing cenderung memiliki banyak sub-path
-#       untuk mengelabui pengguna. Jumlah garis miring yang tinggi dapat
-#       menjadi indikator adanya upaya penyembunyian konten berbahaya.
-#     - http_in_domain: Penjahat siber sering menyelipkan kata 'http' atau
-#       'https' di dalam sub-domain untuk mengelabui mata pengguna agar
-#       mengira URL tersebut aman (misal: https-secure.pay-pal.com).
-# ==============================================================================
 
 import pandas as pd
 import matplotlib
-matplotlib.use('Agg')  # Gunakan backend non-interaktif agar kompatibel di server
+matplotlib.use('Agg')  
 import matplotlib.pyplot as plt
 import numpy as np
 import os
 
-# --- Konfigurasi Path ---
+# Konfigurasi Path 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 OUTPUT_DIR = os.path.join(BASE_DIR, "OUTPUT")
 
-# --- Daftar 16 Fitur Leksikal Bawaan ---
+# daftar fitur bawaan dataset
 FITUR_BAWAAN = [
     'url_length', 'has_ip_address', 'dot_count', 'https_flag',
     'url_entropy', 'token_count', 'subdomain_count', 'query_param_count',
@@ -40,10 +19,10 @@ FITUR_BAWAAN = [
     'percentage_numeric_chars'
 ]
 
-# --- Daftar 1 Fitur Kustom yang Ditambahkan ---
+# daftar fitur tambahan 
 FITUR_KUSTOM = ['http_in_domain']
 
-# --- Total 18 Fitur Prediktor ---
+
 SEMUA_FITUR = FITUR_BAWAAN + FITUR_KUSTOM
 
 
