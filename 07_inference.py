@@ -1,18 +1,3 @@
-# ==============================================================================
-# MODUL 07: INFERENCE (EKSTRAKSI FITUR REAL-TIME)
-# ==============================================================================
-# Deskripsi:
-#   Modul ini merupakan modul mandiri (standalone) yang berfungsi untuk
-#   melakukan prediksi klasifikasi Phishing atau Legitimate pada URL mentah
-#   (string) yang dimasukkan pengguna. 
-#
-#   Proses Utama:
-#     1. Memvalidasi format URL.
-#     2. Mengekstrak 17 fitur secara real-time (16 leksikal bawaan + 1 kustom).
-#     3. Memuat Scaler (scaler.pkl) dan menstandarkan fitur.
-#     4. Memuat Model Terbaik (best_model.pkl) dan mengembalikan prediksi
-#        serta confidence score (probabilitas).
-# ==============================================================================
 
 import os
 import re
@@ -22,7 +7,7 @@ import pandas as pd
 from urllib.parse import urlparse
 import tldextract
 
-# --- Konfigurasi Path (Adaptif untuk Lokal maupun Cloud) ---
+# Konfigurasi Path (Adaptif untuk Lokal maupun Cloud)
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 OUTPUT_DIR = os.path.join(BASE_DIR, "OUTPUT")
 
