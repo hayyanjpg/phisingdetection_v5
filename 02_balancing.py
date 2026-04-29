@@ -1,18 +1,3 @@
-# ==============================================================================
-# MODUL 02: PENYEIMBANGAN DATA DINAMIS (Bab 3.5)
-# ==============================================================================
-# Deskripsi:
-#   Modul ini bertanggung jawab untuk menyeimbangkan distribusi kelas pada
-#   dataset yang telah melalui tahap pra-pemrosesan. Proses yang dilakukan:
-#     1. Menghitung jumlah sampel kelas minoritas secara otomatis (dinamis).
-#     2. Melakukan Random Undersampling pada kelas mayoritas sehingga
-#        rasio kelas menjadi tepat 50:50.
-#     3. Melakukan pengacakan (shuffle) pada dataset yang telah seimbang.
-#     4. Menyimpan dataset seimbang ke file CSV untuk dokumentasi.
-#
-#   Metode Random Undersampling dipilih karena kesederhanaannya dan
-#   kesesuaiannya dengan metodologi penelitian (Bab 3.5).
-# ==============================================================================
 
 import pandas as pd
 import os
@@ -21,7 +6,7 @@ matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import numpy as np
 
-# --- Konfigurasi Path ---
+# Konfigurasi Path 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 OUTPUT_SEIMBANG = os.path.join(BASE_DIR, "DATASET", "dataset_raw_seimbang.csv")
 
@@ -70,11 +55,11 @@ def random_undersampling(df):
     print("TAHAP 2: PENYEIMBANGAN DATA DINAMIS (Bab 3.5)")
     print("=" * 70)
 
-    # --- Langkah 1: Analisis Distribusi Awal ---
+    # Analisis Distribusi Awal 
     print("\n[SEBELUM PENYEIMBANGAN]")
     distribusi = hitung_distribusi_kelas(df)
 
-    # --- Langkah 2: Identifikasi Kelas Minoritas dan Mayoritas ---
+    # Identifikasi Kelas Minoritas dan Mayoritas
     # Menentukan kelas mana yang memiliki jumlah sampel lebih sedikit (minoritas)
     # dan lebih banyak (mayoritas) secara otomatis.
     kelas_minoritas = min(distribusi, key=distribusi.get)
@@ -91,7 +76,7 @@ def random_undersampling(df):
           f"= {jumlah_mayoritas:,} sampel")
     print(f"[INFO] Rasio awal      : 1 : {jumlah_mayoritas / jumlah_minoritas:.2f}")
 
-    # --- Langkah 3: Random Undersampling ---
+    # Random Undersampling
     # Mengambil sampel acak dari kelas mayoritas sebanyak jumlah kelas minoritas.
     # Parameter random_state=42 digunakan untuk memastikan reproduksibilitas hasil.
     print(f"\n[PROSES] Melakukan Random Undersampling pada kelas mayoritas...")
@@ -109,7 +94,7 @@ def random_undersampling(df):
     print(f"  [v] Kelas mayoritas berhasil di-undersample: "
           f"{jumlah_mayoritas:,} -> {len(df_mayoritas_undersampled):,}")
 
-    # --- Langkah 4: Gabungkan Kedua Kelas ---
+    # Gabungkan Kedua Kelas
     df_seimbang = pd.concat([df_minoritas, df_mayoritas_undersampled], axis=0)
 
     print(f"  [v] Dataset digabungkan: {len(df_seimbang):,} total sampel")
@@ -208,19 +193,19 @@ def jalankan_balancing(df):
     Returns:
         pd.DataFrame: DataFrame dengan distribusi kelas seimbang (50:50).
     """
-    # 1. Lakukan Random Undersampling
+    # Lakukan Random Undersampling
     df_seimbang = random_undersampling(df)
 
-    # 2. Shuffle dataset
+    # Shuffle dataset
     df_seimbang = shuffle_dataset(df_seimbang)
 
-    # 3. Simpan ke CSV
+    # Simpan ke CSV
     simpan_dataset_seimbang(df_seimbang)
 
-    # 4. Buat visualisasi
+    # Buat visualisasi
     buat_visualisasi_balancing(df, df_seimbang)
 
-    # 5. Tampilkan distribusi akhir
+    # Tampilkan distribusi akhir
     print("\n[SESUDAH PENYEIMBANGAN]")
     distribusi_akhir = hitung_distribusi_kelas(df_seimbang)
 
@@ -235,14 +220,8 @@ def jalankan_balancing(df):
     return df_seimbang
 
 
-# --- Eksekusi Langsung ---
-# Blok ini memungkinkan pengujian modul secara independen.
-# Saat dijalankan langsung, modul akan memanggil Tahap 1 terlebih dahulu
-# untuk mendapatkan data bersih, kemudian melanjutkan ke Tahap 2.
 if __name__ == "__main__":
-    # Karena nama file dimulai dengan angka (01_preprocessing.py),
-    # Python tidak dapat meng-import secara konvensional.
-    # Digunakan importlib.util untuk memuat modul berdasarkan path file.
+   
     import importlib.util
 
     modul_path = os.path.join(BASE_DIR, "01_preprocessing.py")
