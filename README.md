@@ -1,10 +1,9 @@
-# 🛡️ Deteksi Phishing Berbasis Support Vector Machine (SVM)
+#  Deteksi Phishing Berbasis Support Vector Machine (SVM)
 
 Proyek ini merepresentasikan alur kerja lengkap (pipeline) *Machine Learning* untuk mendeteksi tautan Phishing menggunakan analisis fitur leksikal. Proyek ini ditujukan sebagai pendukung teknis untuk penelitian skripsi, mulai dari prapemrosesan data hingga antarmuka berbasis Web/API.
 
----
 
-## 📊 Metodologi dan Pipeline
+##  Metodologi dan Pipeline
 
 Proyek ini dibagi ke dalam beberapa fase komprehensif:
 
@@ -27,7 +26,7 @@ Proyek ini dibagi ke dalam beberapa fase komprehensif:
 
 ---
 
-## 🖼️ Visualisasi Hasil Pelatihan
+##  Visualisasi Hasil Pelatihan
 
 Di bawah ini adalah beberapa grafik penting yang dihasilkan dari tahapan pelatihan dan evaluasi model.
 
