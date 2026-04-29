@@ -1,15 +1,13 @@
 
-
 import pandas as pd
 import os
 
-# --- Konfigurasi Path ---
+# Konfigurasi Path 
 # Menentukan direktori dasar secara dinamis berdasarkan lokasi file ini.
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DATASET_PATH = os.path.join(BASE_DIR, "DATASET", "url_features_extracted1.csv")
 
-# --- Daftar 16 Fitur Leksikal Bawaan ---
-# Fitur-fitur ini merupakan fitur prediktor asli yang terdapat dalam dataset.
+# Daftar fitur bawaan dataset
 FITUR_LEKSIKAL = [
     'url_length',
     'has_ip_address',
@@ -29,7 +27,7 @@ FITUR_LEKSIKAL = [
     'percentage_numeric_chars'
 ]
 
-# Kolom yang akan dipertahankan: URL (untuk referensi), 16 fitur, dan label.
+# Semua fitur dipakai+classlabel
 KOLOM_TERPILIH = ['URL'] + FITUR_LEKSIKAL + ['ClassLabel']
 
 
@@ -126,26 +124,26 @@ def bersihkan_data(df):
     jumlah_awal = len(df)
     print("\n[PROSES CLEANING]")
 
-    # --- Langkah 1: Normalisasi URL ---
+    # normanilasi url
     # Mengubah seluruh string URL menjadi huruf kecil (lowercase)
     # dan menghapus spasi kosong (whitespace) di awal dan akhir string.
     df['URL'] = df['URL'].astype(str).str.strip().str.lower()
     print("  [v] URL dikonversi ke lowercase dan whitespace dihapus.")
 
-    # --- Langkah 2: Hapus Missing Values ---
+    # Hapus missing value
     # Menghapus baris yang mengandung nilai kosong (NaN) pada kolom manapun.
     jumlah_na = df.isnull().sum().sum()
     df = df.dropna()
     print(f"  [v] Missing values dihapus: {jumlah_na} nilai NaN ditemukan & dihapus.")
 
-    # --- Langkah 3: Hapus Baris Anomali ---
-    # 3a. Menghapus baris dengan URL = "offline" (bukan URL yang valid).
+    # Hapus baris anomali 
+    # Menghapus baris dengan URL = "offline" (bukan URL yang valid).
     mask_offline = df['URL'] == 'offline'
     jumlah_offline = mask_offline.sum()
     df = df[~mask_offline]
     print(f"  [v] Baris anomali (URL='Offline') dihapus: {jumlah_offline} baris.")
 
-    # 3b. Menghapus baris dengan subdomain_count = -1.
+    # Menghapus baris dengan subdomain_count = -1.
     #     Nilai -1 mengindikasikan bahwa URL tidak memiliki skema protokol
     #     yang valid (misalnya URL yang dimulai tanpa 'http://' atau 'https://').
     mask_subdomain = df['subdomain_count'] == -1
@@ -153,18 +151,18 @@ def bersihkan_data(df):
     df = df[~mask_subdomain]
     print(f"  [v] Baris anomali (subdomain_count=-1) dihapus: {jumlah_subdomain} baris.")
 
-    # --- Langkah 4: Hapus Data Duplikat ---
+    # Hapus Data Duplikat 
     jumlah_duplikat = df.duplicated().sum()
     df = df.drop_duplicates()
     print(f"  [v] Data duplikat dihapus: {jumlah_duplikat:,} baris.")
 
-    # --- Langkah 5: Konversi ClassLabel ke Integer ---
+    # Konversi ClassLabel ke Integer 
     # Mengubah tipe data ClassLabel dari float64 menjadi int64.
     # Phishing = 0, Legitimate = 1.
     df['ClassLabel'] = df['ClassLabel'].astype(int)
     print("  [v] ClassLabel dikonversi ke tipe Integer (0=Phishing, 1=Legitimate).")
 
-    # --- Ringkasan Cleaning ---
+    # Ringkasan Cleaning 
     jumlah_akhir = len(df)
     jumlah_dihapus = jumlah_awal - jumlah_akhir
     print(f"\n  [RINGKASAN] Total baris dihapus: {jumlah_dihapus:,} "
@@ -204,9 +202,7 @@ def jalankan_preprocessing():
     return df
 
 
-# --- Eksekusi Langsung ---
-# Blok ini hanya dijalankan ketika file dieksekusi secara langsung,
-# bukan ketika di-import sebagai modul oleh file lain.
+
 if __name__ == "__main__":
     df_bersih = jalankan_preprocessing()
     print(df_bersih.head(10))
