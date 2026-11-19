@@ -1,3 +1,5 @@
+> **STATUS: LEGACY / PRACTICE.** Pipeline SVM ini sudah dirangkum di [`phishing-detection`](https://github.com/hayyanjpg/phishing-detection). Angka 99,95% diukur pada test set seimbang 50:50 - baca catatan batasannya di repo rangkuman sebelum memakainya.
+
 #  Deteksi Phishing Berbasis Support Vector Machine (SVM)
 
 Proyek ini merepresentasikan alur kerja lengkap (pipeline) *Machine Learning* untuk mendeteksi tautan Phishing menggunakan analisis fitur leksikal. Proyek ini ditujukan sebagai pendukung teknis untuk penelitian skripsi, mulai dari prapemrosesan data hingga antarmuka berbasis Web/API.
